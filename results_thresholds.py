@@ -7,7 +7,10 @@ def results_at_thresholds(json_file, thresholds = [0.01, 0.05, 0.1, 0.2, 0.3, 0.
     with open(json_file) as f:
         model_results = json.load(f)
     predictions = np.array(model_results[list(model_results.keys())[0]]['logits_test_normalized'])
-    test_y = np.loadtxt('chromatin_data/test_data_2class_nonzero.csv', comments = None, dtype = bool)
+    if 'methylation' in json_file:
+        test_y = np.loadtxt('chromatin_data/test_data_2class.csv', comments = None, dtype = bool)
+    else:
+        test_y = np.loadtxt('chromatin_data/test_data_2class_nonzero.csv', comments = None, dtype = bool)
     # Other setup
     rec = np.empty_like(thresholds)
     pre = np.empty_like(thresholds)
