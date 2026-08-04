@@ -110,6 +110,7 @@ if __name__ == '__main__':
             ax2.legend(fontsize = 22)
             fig2.tight_layout()
             # fig2.savefig(f'MCC_{n_classes}class_{data_type}.svg', bbox_inches = 'tight')
+            plt.close()
             if args.betas:
                 ax3.set_xlim(0, 1)
                 ax3.set_ylim(45, 62)
@@ -118,11 +119,43 @@ if __name__ == '__main__':
                 ax3.legend(fontsize = 22, loc = 'lower center')#, bbox_to_anchor = (0, -0.01))
                 fig3.tight_layout()
                 fig3.savefig(f'F_beta_score_{n_classes}class_{data_type}.svg', bbox_inches = 'tight')
+                plt.close()
             # Positive F_betas at threshold = 1 bar chart
-            if data_type == 'chromatin': # This plot has been made only for the chromatin-only data
+            if data_type == 'chromatin': # These plots have been made only for the chromatin-only data
+                # F_beta at different beta values
                 fig4, ax4 = plt.subplots(figsize = (16, 9), dpi = 500)
                 ax4.set_ylabel(r'MLP-diffMCC positive-class F$_\beta$ score' + ' (%)\n at threshold = 0.99')
                 ax4.bar(['F$_1$ Score', 'F$_{0.50}$ Score', 'F$_{0.333}$ Score', 'F$_{0.25}$ Score', 'F$_{0.20}$ Score', 'F$_{0.10}$ Score', 'F$_0$ Score\n(Precision)'], [48.93, 60.10, 66.25, 69.41, 71.17, 73.89, 74.91], yerr = [19.37, 11.16, 6.12, 3.42, 1.92, 0.99, 1.77], color = plt.rcParams['axes.prop_cycle'].by_key()['color'])
                 fig4.tight_layout()
                 fig4.savefig(f'F_beta_score_positive_0.99threshold_{n_classes}class_{data_type}.svg', bbox_inches = 'tight')
-            plt.close()
+                plt.close()
+
+                # Interpretability study pie charts
+                fig5, ax5 = plt.subplots(figsize = (16, 9), dpi = 500)
+                labels = ['3 exact', '2 exact, 1 off 1 Tp', '2 exact', '3 off 1 Tp', '2 off 1 Tp', 'No match']
+                # colors = ['#FF0000', '#1F77B4', '#67F978', '#B273EC', '#FCFF81', '#000000']
+                colors = ['#332288', '#117733', '#88CCEE', '#DDCC77', '#CC6677', '#000000']
+                _, _, autotexts = ax5.pie([12, 6, 22, 4, 5, 11], labels = labels, colors = colors, autopct='%1.1f%%')
+                for idx, this_text in enumerate(autotexts): # Changing the color of the first and last autotext to white (for better contrast with BG)
+                    if idx in {0, len(autotexts)-1}:
+                        this_text.set_color('white')
+                # ax5.text(0, -1.25, 'p = 8.3e-10', horizontalalignment = 'center')
+                fig5.tight_layout()
+                fig5.savefig(f'Pie_chart_LCEN_{n_classes}class_{data_type}.svg', bbox_inches = 'tight', transparent = True)
+
+                fig5, ax5 = plt.subplots(figsize = (16, 9), dpi = 500)
+                _, _, autotexts = ax5.pie([9, 16, 10, 8, 11, 6], labels = labels, colors = colors, autopct='%1.1f%%')
+                for idx, this_text in enumerate(autotexts): # Changing the color of the first and last autotext to white (for better contrast with BG)
+                    if idx in {0, len(autotexts)-1}:
+                        this_text.set_color('white')
+                # ax5.text(0, -1.25, 'p = 2.9e-7', horizontalalignment = 'center')
+                fig5.tight_layout()
+                fig5.savefig(f'Pie_chart_MLP_{n_classes}class_{data_type}.svg', bbox_inches = 'tight', transparent = True)
+
+                fig5, ax5 = plt.subplots(figsize = (16, 9), dpi = 500)
+                _, _, autotexts = ax5.pie([2.6, 6.9, 12.7, 4.9, 17.1, 15.8], labels = labels, colors = colors, autopct='%1.1f%%')
+                for idx, this_text in enumerate(autotexts): # Changing the color of the first and last autotext to white (for better contrast with BG)
+                    if idx in {0, len(autotexts)-1}:
+                        this_text.set_color('white')
+                fig5.tight_layout()
+                fig5.savefig(f'Pie_chart_Random_{n_classes}class_{data_type}.svg', bbox_inches = 'tight', transparent = True)
