@@ -2,11 +2,8 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader
-from os.path import join as osjoin
-from os import listdir
-from sklearn.model_selection import train_test_split
 from collections import OrderedDict
-from sklearn.preprocessing import LabelBinarizer
+from scipy.special import softmax
 
 def predict_CHO_stability(data_file, threshold = 0.5, n_classes = 2, batch_size = 2048):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -47,6 +44,8 @@ def predict_CHO_stability(data_file, threshold = 0.5, n_classes = 2, batch_size 
         data = data.to(device)
         temp_pred = model(data).cpu().detach()
         pred[idx*batch_size:(idx*batch_size)+len(temp_pred), :] = temp_pred
+    pred = softmax(np.array(pred, dtype = float), axis = 1)
+    pred[pred < 1e-20] = 0 # For convenience to eliminate very small numbers
     # Saving the predictions
     if n_classes == 2:
         pred_bool = pred[:, 1] >= threshold
@@ -82,13 +81,9 @@ class my_ANN(torch.nn.Module):
                 mylist.append((f'{activ_fun}{idx}', torch_activ_fun))
         # OrderedDict into NN
         self.model = torch.nn.Sequential(OrderedDict(mylist))
-        self.sigmoid = torch.nn.Sigmoid()
 
     def forward(self, x):
-        out = self.model(x)
-        probs = self.sigmoid(out)
-        probs = (probs.T / probs.sum(axis=1)).T # Normalizing the probabilties to 1
-        return probs
+        return self.model(x)
 
 if __name__ == '__main__':
     # Input setup
